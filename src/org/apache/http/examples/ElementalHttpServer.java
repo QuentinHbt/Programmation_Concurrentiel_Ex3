@@ -126,6 +126,7 @@ public class ElementalHttpServer {
         }
         ExecutorService task = Executors.newSingleThreadExecutor();
         task.execute(new RequestListenerThread(port, httpService, sf));
+        Test.postURL(new URL("127.0.0.1:8080/index.html"), "POST");
         //Thread t = new RequestListenerThread(port, httpService, sf);
         //t.setDaemon(false);
         //t.start();
@@ -212,11 +213,13 @@ public class ElementalHttpServer {
                     Socket socket = this.serversocket.accept();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     HttpServerConnection conn = this.connFactory.createConnection(socket);
+                    ExecutorService task = Executors.newFixedThreadPool(1);
+                    task.execute(new WorkerThread(this.httpService, conn));
 
                     // Start worker thread
-                    Thread t = new WorkerThread(this.httpService, conn);
-                    t.setDaemon(true);
-                    t.start();
+                  //  Thread t = new WorkerThread(this.httpService, conn);
+                   // t.setDaemon(true);
+                    //t.start();
                 } catch (InterruptedIOException ex) {
                     break;
                 } catch (IOException e) {
