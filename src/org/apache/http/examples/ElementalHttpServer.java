@@ -37,6 +37,8 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpConnectionFactory;
@@ -122,10 +124,11 @@ public class ElementalHttpServer {
             sslcontext.init(keymanagers, null, null);
             sf = sslcontext.getServerSocketFactory();
         }
-
-        Thread t = new RequestListenerThread(port, httpService, sf);
-        t.setDaemon(false);
-        t.start();
+        ExecutorService task = Executors.newSingleThreadExecutor();
+        task.execute(new RequestListenerThread(port, httpService, sf));
+        //Thread t = new RequestListenerThread(port, httpService, sf);
+        //t.setDaemon(false);
+        //t.start();
     }
 
     static class HttpFileHandler implements HttpRequestHandler  {
