@@ -39,6 +39,7 @@ import java.security.KeyStore;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpConnectionFactory;
@@ -124,9 +125,10 @@ public class ElementalHttpServer {
             sslcontext.init(keymanagers, null, null);
             sf = sslcontext.getServerSocketFactory();
         }
+        ExecutorService taskUser = Executors.newFixedThreadPool(1);
         ExecutorService task = Executors.newSingleThreadExecutor();
-        task.execute(new RequestListenerThread(port, httpService, sf));
-        Test.postURL(new URL("127.0.0.1:8080/index.html"), "POST");
+        task.execute(new RequestListenerThread(port, httpService, sf,taskUser));
+        //Test.postURL(new URL("127.0.0.1:8080/index.html"), "POST");
         //Thread t = new RequestListenerThread(port, httpService, sf);
         //t.setDaemon(false);
         //t.start();
@@ -193,15 +195,17 @@ public class ElementalHttpServer {
 
         private final HttpConnectionFactory<DefaultBHttpServerConnection> connFactory;
         private final ServerSocket serversocket;
+        private final ExecutorService taskUser;
         private final HttpService httpService;
 
         public RequestListenerThread(
                 final int port,
                 final HttpService httpService,
-                final SSLServerSocketFactory sf) throws IOException {
+                final SSLServerSocketFactory sf,final ExecutorService taskUser) throws IOException {
             this.connFactory = DefaultBHttpServerConnectionFactory.INSTANCE;
             this.serversocket = sf != null ? sf.createServerSocket(port) : new ServerSocket(port);
             this.httpService = httpService;
+            this.taskUser = Executors.newFixedThreadPool(1);
         }
 
         @Override
@@ -213,9 +217,9 @@ public class ElementalHttpServer {
                     Socket socket = this.serversocket.accept();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     HttpServerConnection conn = this.connFactory.createConnection(socket);
-                    ExecutorService task = Executors.newFixedThreadPool(1);
-                    task.execute(new WorkerThread(this.httpService, conn));
-
+                    
+                    taskUser.execute(new WorkerThread(this.httpService, conn));
+                    System.out.println(taskUser);
                     // Start worker thread
                   //  Thread t = new WorkerThread(this.httpService, conn);
                    // t.setDaemon(true);
