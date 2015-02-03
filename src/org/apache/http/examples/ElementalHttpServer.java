@@ -69,6 +69,8 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 import org.apache.http.util.EntityUtils;
 
+import ressource.PropertiesConf;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -76,12 +78,12 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 /**
  * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
- * Coucou
  */
 public class ElementalHttpServer {
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
+    	String cheminRoot = PropertiesConf.getProperties("cheminRoot");
+        if (cheminRoot.length() < 1) {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
@@ -125,7 +127,7 @@ public class ElementalHttpServer {
             sslcontext.init(keymanagers, null, null);
             sf = sslcontext.getServerSocketFactory();
         }
-        ExecutorService taskUser = Executors.newFixedThreadPool(1);
+        ExecutorService taskUser = Executors.newFixedThreadPool(Integer.parseInt(PropertiesConf.getProperties("connexion_simultanee")));
         ExecutorService task = Executors.newSingleThreadExecutor();
         task.execute(new RequestListenerThread(port, httpService, sf,taskUser));
         //Test.postURL(new URL("127.0.0.1:8080/index.html"), "POST");
@@ -186,6 +188,7 @@ public class ElementalHttpServer {
                 FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
+                context.setAttribute("actualise",(Integer)context.getAttribute("actualise")+1);
             }
         }
 
@@ -205,7 +208,7 @@ public class ElementalHttpServer {
             this.connFactory = DefaultBHttpServerConnectionFactory.INSTANCE;
             this.serversocket = sf != null ? sf.createServerSocket(port) : new ServerSocket(port);
             this.httpService = httpService;
-            this.taskUser = Executors.newFixedThreadPool(1);
+            this.taskUser = Executors.newFixedThreadPool(Integer.parseInt(PropertiesConf.getProperties("connexion_simultanee")));
         }
 
         @Override
@@ -217,7 +220,6 @@ public class ElementalHttpServer {
                     Socket socket = this.serversocket.accept();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     HttpServerConnection conn = this.connFactory.createConnection(socket);
-                    
                     taskUser.execute(new WorkerThread(this.httpService, conn));
                     System.out.println(taskUser);
                     // Start worker thread
@@ -252,9 +254,11 @@ public class ElementalHttpServer {
         public void run() {
             System.out.println("New connection thread");
             HttpContext context = new BasicHttpContext(null);
+            context.setAttribute("actualise", 0);
             try {
                 while (!Thread.interrupted() && this.conn.isOpen()) {
                     this.httpservice.handleRequest(this.conn, context);
+                    System.out.println(context.getAttribute("actualise"));
                 }
             } catch (ConnectionClosedException ex) {
                 System.err.println("Client closed connection");
