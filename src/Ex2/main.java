@@ -2,7 +2,7 @@ package Ex2;
 
 public class main {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 //		hautNiveau hNiveau = new hautNiveau(5);
 //		Thread thread = new Thread((Runnable) hNiveau);
 //		thread.start();
@@ -30,6 +30,7 @@ public class main {
 //		System.out.println( (String)hNiveau.prendre());
 //		System.out.println( (String)hNiveau.prendre());
 		//Crée classe haut niveau
+		/*
 		hautNiveau hNiveau = new hautNiveau(5);
 		//Classe Thread Deposer
 		TestHautNiveauDepos testHN = new TestHautNiveauDepos(hNiveau);
@@ -41,7 +42,22 @@ public class main {
 		//Lance
 		th1.start();
 		th2.start();
-
+*/
+		
+		
+		
+	 // TODO Auto-generated method stub
+		basNiveau bNiveau = new basNiveau(5);
+		
+		TestBNDepot bnDepot = new TestBNDepot(bNiveau);
+		TestBNRetrait bnRetrait = new TestBNRetrait(bNiveau);
+		
+		Thread t1 = new Thread((Runnable) bnDepot);
+        Thread t2 = new Thread((Runnable) bnRetrait);
+        
+        t1.start();
+        t2.start();
+		 
 	}
 
 }

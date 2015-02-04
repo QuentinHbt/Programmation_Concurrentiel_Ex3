@@ -19,7 +19,8 @@ public class TestHautNiveauRetrait implements Runnable{
 			}
 			System.out.println(hNiveau.toString());
 			try {
-				Thread.currentThread().sleep(500);
+				Thread.currentThread();
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
