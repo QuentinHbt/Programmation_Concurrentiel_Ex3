@@ -23,8 +23,9 @@ class Fourchette
         prise = true;
     }
 
-    final synchronized void relacher() 
+    final synchronized void relacher(String philosophe,String coter) 
     {
+    	System.out.println(philosophe + " � relacher la fourchette "+coter);
         prise = false;
         notifyAll();
     }
@@ -50,8 +51,8 @@ public class Philosophe implements Runnable
             fGauche.prendre();
             fDroite.prendre();
             manger();
-            fDroite.relacher();
-            fGauche.relacher();
+            fDroite.relacher(nom,"droite");
+            fGauche.relacher(nom,"gauche");
         }
     }
 
@@ -73,7 +74,7 @@ public class Philosophe implements Runnable
 
     public static void main(String args[])
     {
-        final String[] noms = {"Platon", "Socrate", "Aristote", "Diogène", "Sénèque"};
+        final String[] noms = {"Platon", "Socrate", "Aristote", "Diogene", "Sanaque"};
         final Fourchette[] fourchettes = {new Fourchette(), new Fourchette(), new Fourchette(), new Fourchette(), new Fourchette()}; 
         Philosophe[] table;
 
