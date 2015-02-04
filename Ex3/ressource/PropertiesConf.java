@@ -12,7 +12,7 @@ public class PropertiesConf {
 		FileInputStream input = null;
 		String strRet = null;
 		try {
-			input = new FileInputStream("C:\\Users\\Guillaume\\Programmation\\WorkspaceJava\\Programmation_Concurrentiel_Ex3\\src\\ressource\\config.properties");
+			input = new FileInputStream("C:\\Users\\Guillaume\\Programmation\\WorkspaceJava\\Programmation_Concurrentiel_Ex3\\Ex3\\ressource\\config.properties");
 			prop.load(input);
 			strRet = prop.getProperty(propertie);
 		} catch (IOException ex) {

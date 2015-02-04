@@ -88,10 +88,10 @@ public class ElementalHttpServer {
             System.exit(1);
         }
         // Document root directory
-        String docRoot = args[0];
-        int port = 8080;
-        if (args.length >= 2) {
-            port = Integer.parseInt(args[1]);
+        String docRoot = cheminRoot;
+        int port = Integer.parseInt(PropertiesConf.getProperties("port"));
+        if (port <= 0) {
+            port = 8080;
         }
 
         // Set up the HTTP protocol processor
@@ -129,10 +129,11 @@ public class ElementalHttpServer {
         }
         ExecutorService taskUser = Executors.newFixedThreadPool(Integer.parseInt(PropertiesConf.getProperties("connexion_simultanee")));
         ExecutorService task = Executors.newSingleThreadExecutor();
-        task.execute(new RequestListenerThread(port, httpService, sf,taskUser));
+        Thread t = new RequestListenerThread(port, httpService, sf,taskUser);
+        t.setDaemon(false);
+        task.execute(t);
         //Test.postURL(new URL("127.0.0.1:8080/index.html"), "POST");
-        //Thread t = new RequestListenerThread(port, httpService, sf);
-        //t.setDaemon(false);
+        //
         //t.start();
     }
 
@@ -220,12 +221,9 @@ public class ElementalHttpServer {
                     Socket socket = this.serversocket.accept();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     HttpServerConnection conn = this.connFactory.createConnection(socket);
-                    taskUser.execute(new WorkerThread(this.httpService, conn));
-                    System.out.println(taskUser);
-                    // Start worker thread
-                  //  Thread t = new WorkerThread(this.httpService, conn);
-                   // t.setDaemon(true);
-                    //t.start();
+                    Thread t = new WorkerThread(this.httpService, conn);
+                    t.setDaemon(true);
+                    taskUser.execute(t);
                 } catch (InterruptedIOException ex) {
                     break;
                 } catch (IOException e) {
@@ -258,7 +256,6 @@ public class ElementalHttpServer {
             try {
                 while (!Thread.interrupted() && this.conn.isOpen()) {
                     this.httpservice.handleRequest(this.conn, context);
-                    System.out.println(context.getAttribute("actualise"));
                 }
             } catch (ConnectionClosedException ex) {
                 System.err.println("Client closed connection");
