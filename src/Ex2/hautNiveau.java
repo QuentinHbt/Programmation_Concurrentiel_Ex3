@@ -26,22 +26,23 @@ public class hautNiveau extends AbstractFileBloquanteBornee<Object> {
 	@Override
 	public Object prendre() throws InterruptedException {
 		lock.lock();
-		Object retourner = "Non !";
+		Object retourner = null;
 		try{
 			if(estVide){
 				prendre.await();
 				
 			}
 			else{
-				retourner = tableau[tete];
-				tableau[tete] =null;
-				if(tete < tableau.length-1)
-				tete += 1;
-				if(estPleine){
-					estPleine = false;
+				retourner =this.tableau[this.tete];
+				this.estPleine = false;
+				this.tete++;
+					
+				System.out.println("Pris");
+				if (this.tete == this.tableau.length) {
+					this.tete = 0;
 				}
-				if(tete == queue){
-					estVide = true;
+				if (this.tete == this.queue) {
+					this.estVide = true;
 				}
 				deposer.signal();
 			}
@@ -67,26 +68,17 @@ public class hautNiveau extends AbstractFileBloquanteBornee<Object> {
 				deposer.await();
 			}
 			else{
+				this.tableau[this.queue] = e;
+				this.queue ++;
+				this.estVide = false;
 				
-				if(tete == 0){
-					tableau[queue] = e;
-					if(queue < tableau.length)
-						queue ++;
-				}
-				else{
-					if(queue < tableau.length-1)
-						tableau[queue++] = e;
-					else{
-						if(queue ==  tableau.length-1 && tableau[queue] == null)
-							tableau[queue] =e;
-						else
-						    deposer.await();
-					}
-				}
-				estVide = false;
-				if(queue == tableau.length-1 && tete != tableau.length-1){
-					estPleine = true;
-				}
+			if(this.queue == this.tableau.length){
+				this.queue = 0;
+			}
+			if(this.queue == this.tete){
+				this.estPleine = true;
+			}
+			System.out.println("Déposé");
 				prendre.signal();
 			}
 		}catch(Exception exception){System.out.println(exception.getMessage());}finally{lock.unlock();}

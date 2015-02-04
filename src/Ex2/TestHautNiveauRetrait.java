@@ -10,7 +10,6 @@ public class TestHautNiveauRetrait implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			System.out.println("Retrait_______________________________");
 			try {
 				System.out.println(hNiveau.prendre());
 			} catch (InterruptedException e) {

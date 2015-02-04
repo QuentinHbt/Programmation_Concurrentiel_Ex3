@@ -9,10 +9,11 @@ public class TestHautNiveauDepos implements Runnable{
 	}
 	@Override
 	public void run() {
+		int i = 0;
 		while(true){
-			System.out.println("Deposer_______________________________");
 			try {
-				hNiveau.deposer(new String("OK"));
+				hNiveau.deposer(new String("Tour "+i));
+				i++;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

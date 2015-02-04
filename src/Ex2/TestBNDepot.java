@@ -13,10 +13,12 @@ public class TestBNDepot implements Runnable{
 	
 	@Override
 	public void run() {
+		int i =0;
 		// TODO Auto-generated method stub
 		while(true){
 			try {
-				bNiveau.deposer(new String("OK"));
+				bNiveau.deposer(new String("Tour "+i));
+				i++;
 				System.out.println(bNiveau.toString());
 				Thread.currentThread();
 				Thread.sleep(500);
